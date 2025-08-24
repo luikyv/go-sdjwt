@@ -33,22 +33,22 @@ func main() {
     issuerSigner, _ := jose.NewSigner(jose.SigningKey{Algorithm: jose.PS256, Key: issuerKey}, nil)
 
     // Create disclosures for sensitive data.
-    nameDisclosure := sdjwt.NewDisclosure("John Doe", &sdjwt.DisclosureOptions{ClaimName: "name"})
-    emailDisclosure := sdjwt.NewDisclosure("john@example.com", &sdjwt.DisclosureOptions{ClaimName: "email"})
-    phoneDisclosure := sdjwt.NewDisclosure("+1234567890", &sdjwt.DisclosureOptions{ClaimName: "phone"})
+    disclosureName := sdjwt.NewDisclosure("John Doe", &sdjwt.DisclosureOptions{ClaimName: "name"})
+    disclosureEmail := sdjwt.NewDisclosure("john@example.com", &sdjwt.DisclosureOptions{ClaimName: "email"})
+    disclosurePhone := sdjwt.NewDisclosure("+1234567890", &sdjwt.DisclosureOptions{ClaimName: "phone"})
 
     // Build and serialize the SD-JWT.
     serialized, _ := sdjwt.Signed(issuerSigner).
         Hash(sha256.New()).
-        Disclosures([]sdjwt.Disclosure{nameDisclosure, emailDisclosure, phoneDisclosure}).
+        Disclosures([]sdjwt.Disclosure{disclosureName, disclosureEmail, disclosurePhone}).
         Claims(map[string]any{
             "iss": "https://issuer.example.com",
             "sub": "1234567890",
             "exp": time.Now().Add(time.Hour).Unix(),
             "_sd": []any{
-                nameDisclosure.MustHash(sha256.New()),
-                emailDisclosure.MustHash(sha256.New()),
-                phoneDisclosure.MustHash(sha256.New()),
+                disclosureName.MustHash(sha256.New()),
+                disclosureEmail.MustHash(sha256.New()),
+                disclosurePhone.MustHash(sha256.New()),
             },
             "_sd_alg": "sha-256",
         }).
