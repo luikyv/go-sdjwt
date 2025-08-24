@@ -24,7 +24,7 @@ import (
     "time"
 
     "github.com/go-jose/go-jose/v4"
-    "github.com/luikyv/go-sdjwt"
+    "github.com/luikyv/go-sdjwt/sdjwt"
 )
 
 func main() {

@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-jose/go-jose/v4"
 	"github.com/go-jose/go-jose/v4/jwt"
+	"github.com/luikyv/go-sdjwt/sdjwt"
 )
 
 func Example() {
@@ -26,17 +27,17 @@ func Example() {
 		panic(err)
 	}
 
-	disclosureName := NewDisclosure("John Doe", &DisclosureOptions{ClaimName: "name"})
-	disclosureEmail := NewDisclosure("john.doe@example.com", &DisclosureOptions{ClaimName: "email"})
-	disclosurePhone := NewDisclosure("+1234567890", &DisclosureOptions{ClaimName: "phone"})
-	disclosureFrenchNationality := NewDisclosure("FR", nil)
-	disclosureStreet := NewDisclosure("123 Main St", &DisclosureOptions{ClaimName: "street"})
-	disclosureZip := NewDisclosure("12345", &DisclosureOptions{ClaimName: "zip"})
-	disclosureAddress := NewDisclosure(map[string]any{
+	disclosureName := sdjwt.NewDisclosure("John Doe", &sdjwt.DisclosureOptions{ClaimName: "name"})
+	disclosureEmail := sdjwt.NewDisclosure("john.doe@example.com", &sdjwt.DisclosureOptions{ClaimName: "email"})
+	disclosurePhone := sdjwt.NewDisclosure("+1234567890", &sdjwt.DisclosureOptions{ClaimName: "phone"})
+	disclosureFrenchNationality := sdjwt.NewDisclosure("FR", nil)
+	disclosureStreet := sdjwt.NewDisclosure("123 Main St", &sdjwt.DisclosureOptions{ClaimName: "street"})
+	disclosureZip := sdjwt.NewDisclosure("12345", &sdjwt.DisclosureOptions{ClaimName: "zip"})
+	disclosureAddress := sdjwt.NewDisclosure(map[string]any{
 		"_sd":   []any{disclosureStreet, disclosureZip},
 		"city":  "Anytown",
 		"state": "CA",
-	}, &DisclosureOptions{ClaimName: "address"})
+	}, &sdjwt.DisclosureOptions{ClaimName: "address"})
 
 	// ========================= Issuance =========================
 	issuerSignerOpts := (&jose.SignerOptions{}).WithType("sd-jwt")
@@ -45,7 +46,7 @@ func Example() {
 		panic(err)
 	}
 
-	serialized, err := Signed(issuerSigner).Hash(h).Disclosures([]Disclosure{
+	serialized, err := sdjwt.Signed(issuerSigner).Hash(h).Disclosures([]sdjwt.Disclosure{
 		disclosureName,
 		disclosureEmail,
 		disclosureAddress,
@@ -77,7 +78,7 @@ func Example() {
 	fmt.Printf("SD-JWT:\n%s\n\n", serialized)
 
 	// ========================= Holder Verification =========================
-	sdJWT, err := ParseSigned(serialized, []jose.SignatureAlgorithm{jose.PS256}, nil)
+	sdJWT, err := sdjwt.ParseSigned(serialized, []jose.SignatureAlgorithm{jose.PS256}, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -114,7 +115,7 @@ func Example() {
 		panic(err)
 	}
 
-	var presentedDisclosures []Disclosure
+	var presentedDisclosures []sdjwt.Disclosure
 	for _, d := range sdJWT.Disclosures {
 		if slices.Contains([]string{
 			disclosureName.ClaimName,
@@ -132,7 +133,7 @@ func Example() {
 	fmt.Printf("SD-JWT presented by the holder:\n%s\n\n", serialized)
 
 	// ========================= Verifier Verification =========================
-	verifierSDJWT, err := ParseSigned(
+	verifierSDJWT, err := sdjwt.ParseSigned(
 		serialized,
 		[]jose.SignatureAlgorithm{jose.PS256},
 		[]jose.SignatureAlgorithm{jose.RS256},
